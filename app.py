@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.express as px
 
 # Page Config
 st.set_page_config(
@@ -113,6 +114,13 @@ top_customers = (
 )
 
 st.dataframe(top_customers)
+
+st.download_button(
+    label="📥 Download Filtered Customers",
+    data=filtered_df.to_csv(index=False),
+    file_name="rfm_segment.csv",
+    mime="text/csv"
+)
 
 # Summary
 st.subheader("Key Insights")
