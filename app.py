@@ -48,6 +48,17 @@ st.markdown("RFM-Based Customer Segmentation Analysis")
 # KPIs
 col1, col2, col3, col4 = st.columns(4)
 
+st.subheader("🏆 Top Customer Insights")
+
+top_customer_value = filtered_df["Monetary"].max()
+
+top_1_customer = filtered_df.sort_values("Monetary", ascending=False).iloc[0]
+
+st.metric(
+    label="Top Customer Revenue",
+    value=f"${top_customer_value:,.0f}"
+)
+
 col1.metric(
     "Customers",
     f"{len(filtered_df):,}"
@@ -68,41 +79,58 @@ col4.metric(
     f"${filtered_df['Monetary'].max():,.0f}"
 )
 
+top_10_pct = int(len(filtered_df) * 0.1)
+
+top_10_revenue_share = (
+    filtered_df.sort_values("Monetary", ascending=False)
+    .head(top_10_pct)["Monetary"].sum()
+    / filtered_df["Monetary"].sum()
+    * 100
+)
+
+st.metric(
+    label="Top 10% Revenue Contribution",
+    value=f"{top_10_revenue_share:.1f}%"
+)
+
 st.divider()
 
 # Segment Distribution
 st.subheader("Customer Segment Distribution")
 
-segment_counts = (
-    filtered_df["Segment"]
-    .value_counts()
+segment_counts = filtered_df["Segment"].value_counts()
+
+if not segment_counts.empty:
+    fig1 = px.bar(
+        x=segment_counts.index,
+        y=segment_counts.values,
+        labels={"x": "Segment", "y": "Customers"},
+        title="Customer Segment Distribution"
+    )
+    st.plotly_chart(fig1, use_container_width=True)
+else:
+    st.warning("No data available for selected filters.")
+
+fig1 = px.bar(
+    x=segment_counts.index,
+    y=segment_counts.values,
+    labels={"x": "Segment", "y": "Customers"},
+    title="Customer Segment Distribution"
 )
 
-fig1, ax1 = plt.subplots(figsize=(8,4))
-segment_counts.plot(
-    kind="bar",
-    ax=ax1
-)
-
-ax1.set_xlabel("Segment")
-ax1.set_ylabel("Customers")
-
-st.pyplot(fig1)
+st.plotly_chart(fig1, use_container_width=True)
 
 # Monetary Distribution
 st.subheader("Customer Spending Distribution")
 
-fig2, ax2 = plt.subplots(figsize=(8,4))
-
-ax2.hist(
-    filtered_df["Monetary"],
-    bins=30
+fig2 = px.histogram(
+    filtered_df,
+    x="Monetary",
+    nbins=30,
+    title="Customer Spending Distribution"
 )
 
-ax2.set_xlabel("Monetary Value")
-ax2.set_ylabel("Frequency")
-
-st.pyplot(fig2)
+st.plotly_chart(fig2, use_container_width=True)
 
 # Top Customers
 st.subheader("Top 20 Customers")
