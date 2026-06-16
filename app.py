@@ -33,20 +33,56 @@ df["Segment"] = df["RFM_Score"].apply(assign_segment)
 # Sidebar
 st.sidebar.header("Filters")
 
-selected_segment = st.sidebar.multiselect(
-    "Select Segment",
-    options=df["Segment"].unique(),
-    default=df["Segment"].unique()
-)
+if "reset" not in st.session_state:
+    st.session_state.reset = False
+
+def reset_filters():
+    st.session_state.reset = True
+
+st.sidebar.button("🔄 Reset Filters", on_click=reset_filters)
+
+default_segments = df["Segment"].unique()
+
+if st.session_state.reset:
+    selected_segment = st.sidebar.multiselect(
+        "Select Segment",
+        options=df["Segment"].unique(),
+        default=default_segments
+    )
+    st.session_state.reset = False
+else:
+    selected_segment = st.sidebar.multiselect(
+        "Select Segment",
+        options=df["Segment"].unique(),
+        default=default_segments
+    )
 
 filtered_df = df[df["Segment"].isin(selected_segment)]
 
 # Title
-st.title("📊 Customer Segmentation Analysis Dashboard")
-st.markdown("RFM-Based Customer Segmentation Analysis")
+st.markdown("""
+# 📊 Customer Segmentation Dashboard  
+### Executive Customer Insights (RFM Analysis)
+""")
+
+st.info("""
+This dashboard provides a real-time view of customer behavior using RFM segmentation.
+Use filters to identify high-value customers, at-risk segments, and revenue concentration patterns.
+""")
+
+if filtered_df.empty:
+    st.info("No customers match the selected filters. Try adjusting your segment selection.")
+    st.stop()
 
 # KPIs
-col1, col2, col3, col4 = st.columns(4)
+st.subheader("📌 Key Performance Indicators")
+
+kpi_container = st.container()
+
+with kpi_container:
+    col1, col2, col3, col4 = st.columns(4)
+
+st.divider()
 
 st.subheader("🏆 Top Customer Insights")
 
@@ -59,25 +95,16 @@ st.metric(
     value=f"${top_customer_value:,.0f}"
 )
 
-col1.metric(
-    "Customers",
-    f"{len(filtered_df):,}"
-)
-
-col2.metric(
-    "Revenue",
-    f"${filtered_df['Monetary'].sum():,.0f}"
-)
-
-col3.metric(
-    "Avg Revenue",
-    f"${filtered_df['Monetary'].mean():,.0f}"
-)
-
-col4.metric(
-    "Highest Customer Value",
-    f"${filtered_df['Monetary'].max():,.0f}"
-)
+if not filtered_df.empty:
+    col1.metric("Customers", f"{len(filtered_df):,}")
+    col2.metric("Revenue", f"${filtered_df['Monetary'].sum():,.0f}")
+    col3.metric("Avg Revenue", f"${filtered_df['Monetary'].mean():,.0f}")
+    col4.metric("Highest Value", f"${filtered_df['Monetary'].max():,.0f}")
+else:
+    col1.metric("Customers", "0")
+    col2.metric("Revenue", "$0")
+    col3.metric("Avg Revenue", "$0")
+    col4.metric("Highest Value", "$0")
 
 top_10_pct = int(len(filtered_df) * 0.1)
 
@@ -111,26 +138,25 @@ if not segment_counts.empty:
 else:
     st.warning("No data available for selected filters.")
 
-fig1 = px.bar(
-    x=segment_counts.index,
-    y=segment_counts.values,
-    labels={"x": "Segment", "y": "Customers"},
-    title="Customer Segment Distribution"
-)
-
 st.plotly_chart(fig1, use_container_width=True)
+
+st.divider()
 
 # Monetary Distribution
 st.subheader("Customer Spending Distribution")
 
-fig2 = px.histogram(
-    filtered_df,
-    x="Monetary",
-    nbins=30,
-    title="Customer Spending Distribution"
-)
+if not filtered_df.empty:
+    fig2 = px.histogram(
+        filtered_df,
+        x="Monetary",
+        nbins=30,
+        title="Customer Spending Distribution"
+    )
+    st.plotly_chart(fig2, use_container_width=True)
+else:
+    st.warning("No data available for selected filters.")
 
-st.plotly_chart(fig2, use_container_width=True)
+st.divider()
 
 # Top Customers
 st.subheader("Top 20 Customers")
@@ -149,6 +175,8 @@ st.download_button(
     file_name="rfm_segment.csv",
     mime="text/csv"
 )
+
+st.divider()
 
 # Summary
 st.subheader("Key Insights")
