@@ -65,7 +65,7 @@ Customer-Segmentation-Analysis/
 
 ## ⚙️ Setup
 
-git clone https://github.com/your-username/customer-segmentation-analysis.git
+git clone https://github.com/shifuuntold/customer-segmentation-analysis.git
 cd customer-segmentation-analysis
 pip install -r requirements.txt
 streamlit run app.py
