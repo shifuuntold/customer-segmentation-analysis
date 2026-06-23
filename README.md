@@ -88,4 +88,9 @@ Python, Pandas, Streamlit, Plotly, Matplotlib, ReportLab
 ---
 
 ## 👨‍💻 Author
-Ramon
+
+Amos Kyalo Mutunga
+
+Bachelor of Business Information Technology (BBIT)
+
+Aspiring Data Analyst | Business Intelligence Enthusiast | Data Visualization
