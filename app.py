@@ -69,6 +69,8 @@ selected_segment = st.sidebar.multiselect(
 )
 
 filtered_df = df[df["Segment"].isin(selected_segment)]
+# CLV estimation (simple)
+filtered_df["CLV"] = filtered_df["Monetary"] * filtered_df["Frequency"]
 
 top_15_pct = max(1, int(len(filtered_df) * 0.15))
 
@@ -108,6 +110,8 @@ col1.metric("👥 Customers", f"{customers:,}")
 col2.metric("💰 Revenue", f"${revenue:,.0f}")
 col3.metric("📊 Avg Revenue", f"${avg_rev:,.0f}")
 col4.metric("🏆 Top Customer", f"${max_rev:,.0f}")
+
+col4.metric("Avg CLV", f"${filtered_df['CLV'].mean():,.0f}")
 
 st.subheader("🧠 Customer Personas Overview")
 
