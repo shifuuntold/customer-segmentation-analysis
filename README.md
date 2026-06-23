@@ -1,7 +1,7 @@
 # 📊 Customer Segmentation Analysis (RFM + Streamlit Dashboard)
 
 ## 🚀 Live App
-https://your-streamlit-app-link
+[https://your-streamlit-app-link](https://customer-segmentation-analysis-ce31li01ne05.streamlit.app/)
 
 ---
 
